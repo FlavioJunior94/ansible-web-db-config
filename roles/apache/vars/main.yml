@@ -1,0 +1,7 @@
+---
+# vars file for apache
+site_folder: "/var/www/flavio_local"
+site_url: "www.flavio.local"
+site_domain: "flavio.local"
+log_prefix: "flavio-local"
+php_version: "7.3"

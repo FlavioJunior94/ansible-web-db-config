@@ -1,0 +1,62 @@
+---
+- hosts: all
+  become: yes
+  #gather_facts: no
+
+  vars:
+    default_dir: /opt/custom
+    default_file: file.py
+    teste: "{{ default_dir }}/script"
+    dict_dir: {
+      scripts: "{{ default_dir }}/bin",
+      backup: "{{ default_dir }}/backup",
+      log: "{{ default_dir }}/log",
+      temp: "{{ default_dir }}/temp"
+    }
+
+  tasks:
+  - name: "Instala pacote wget centos"
+    yum:
+      update_cache: yes
+      name: "wget"
+      #state: present
+      state: absent # absent apaga , present instala.
+    when: (ansible_facts['distribution'] == "CentOS")
+
+  - name: "define o hostname servidores"
+    hostname:
+      name: "{{hostname}}"
+
+  - name: "cria diretorio padrao nos servidores"
+    file:
+      path: "{{item}}"
+      owner: flavio
+      group: flavio
+      state: directory #diretorio para pasta touch para arquivo
+    with_items:
+    - "{{dict_dir.scripts}}"
+    - "{{dict_dir.backup}}"
+    - "{{dict_dir.log}}"
+    - "{{dict_dir.temp}}"
+
+  - name: "cria arquivo simples"
+    file:
+      path: "{{default_dir}}/{{default_file}}"
+      state: touch
+      owner: flavio
+      group: flavio
+      mode: 0755
+      modification_time: preserve
+      access_time: preserve
+  
+  - name: "exemplo de debug"
+    debug:
+      msg: "{{dict_dir.scripts}}"
+  
+  - name: "exemplo register"
+    shell: "date -u"
+    register: linux_date
+
+  - name: "exibindo register"
+    debug:
+      msg: "{{linux_date.start}}"

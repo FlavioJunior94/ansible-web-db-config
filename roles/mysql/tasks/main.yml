@@ -1,0 +1,56 @@
+---
+# tasks file for mysql
+
+- name: Install Mariadb Server - RedHat
+  yum:
+    name:
+      - mariadb-server
+      - MySQL-python
+    state: present
+  when: (ansible_facts['os_family']=="RedHat")
+
+- name: Install Mariadb Server - Debian
+  apt:
+    update_cache: yes
+    name:
+      - mariadb-server
+      - python-pymysql
+    state: present
+  when: (ansible_facts['os_family']=="Debian")
+
+- name: "Start Mariadb"
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Criando um banco de dados para ser utilizado pelo WOrdPress - RedHat
+  mysql_db:
+    name: "{{db_wp_name}}"
+    state: present
+  when: (ansible_facts['os_family']=="RedHat")
+
+
+- name: Criando um banco de dados para ser utilizado pelo WOrdPress - Debian
+  mysql_db:
+    login_unix_socket: "/var/run/mysqld/mysqld.sock"
+    name: "{{db_wp_name}}"
+    state: present
+  when: (ansible_facts['os_family']=="Debian")
+
+- name: Criando um user com todos os privilegios - RedHat
+  mysql_user:
+    name: "{{db_wp_username}}"
+    password: "{{db_wp_password}}"
+    priv: "{{db_wp_username}}.*:ALL,GRANT"
+    state: present
+  when: (ansible_facts['os_family']=="RedHat")
+
+- name: Criando um user com todos os privilegios - Debian
+  mysql_user:
+    login_unix_socket: "/var/run/mysqld/mysqld.sock"
+    name: "{{db_wp_username}}"
+    password: "{{db_wp_password}}"
+    priv: "{{db_wp_username}}.*:ALL,GRANT"
+    state: present
+  when: (ansible_facts['os_family']=="Debian")
